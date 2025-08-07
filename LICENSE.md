@@ -1,4 +1,4 @@
-Copyright © 2025 Claudio S.
+Copyright © 2025 Claudio Salvatore
 
 Tutti i diritti riservati. È vietata la copia, distribuzione o modifica non autorizzata dei contenuti di questo progetto, salvo esplicita autorizzazione dell’autore.
 
