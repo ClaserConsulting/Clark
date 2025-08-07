@@ -29,7 +29,7 @@ export const darkTheme = {
   card: "rgba(255, 255, 255, 0.05)",
   primary: "#00c2cb",
   tileShadow: "rgba(0, 0, 0, 0.4)",
-  widgetShadow: "rgba(0, 0, 0, 0.2)"
+  widgetShadow: "rgba(0, 0, 0, 0.2)",
 };
 
 export const GlobalStyle = createGlobalStyle`
@@ -37,8 +37,8 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: \${({ theme }) => theme.background};
-    color: \${({ theme }) => theme.text};
+    background-color: ${({ theme }) => theme.background};
+    color: ${({ theme }) => theme.text};
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }

@@ -1,19 +1,28 @@
+// 📁 src/components/Sidebar.jsx
 import React from "react";
 import styled from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
 import { HomeIcon, ConfigIcon, UserIcon, PinIcon, HamburgerIcon } from "../data/icons";
 
 const SidebarContainer = styled.nav`
-  position: relative;
+  position: fixed;
+  top: 64px;
+  left: 0;
   width: ${({ expanded }) => (expanded ? "220px" : "56px")};
   background: ${({ theme }) => theme.sidebarBg};
   color: ${({ theme }) => theme.sidebarColor};
-  height: 100vh;
-  transition: width 0.3s ease;
+  height: calc(100vh - 64px);
+  transition: width 0.3s ease, transform 0.3s ease;
   box-shadow: 2px 0 8px rgb(0 0 0 / 0.15);
   user-select: none;
   display: flex;
   flex-direction: column;
+  z-index: 1001;
+
+  @media (max-width: 768px) {
+    width: 220px;
+    transform: ${({ expanded }) => (expanded ? "translateX(0)" : "translateX(-100%)")};
+  }
 `;
 
 const MenuList = styled.ul`
@@ -74,6 +83,10 @@ const PinButton = styled.button`
     width: 12px;
     height: 12px;
   }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const HamburgerWrapper = styled.div`
@@ -87,7 +100,7 @@ const HamburgerWrapper = styled.div`
   }
 `;
 
-export default function Sidebar({ pinned, expanded, onPinToggle, onHoverChange, theme }) {
+export default function Sidebar({ pinned, expanded, onPinToggle, onHoverChange = () => {}, theme }) {
   const navigate = useNavigate();
   const location = useLocation();
 

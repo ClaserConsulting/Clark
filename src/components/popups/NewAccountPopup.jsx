@@ -5,10 +5,22 @@ const Overlay = styled.div`
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+`;
+
+const Popup = styled.div`
+  background: ${({ theme }) => theme.card};
+  padding: 2rem;
+  border-radius: 12px;
+  width: 95%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px ${({ theme }) => theme.tileShadow};
 `;
 
 const Modal = styled.div`
@@ -113,46 +125,48 @@ const handleSubmit = (e) => {
 
   return (
     <Overlay onClick={onClose}>
-      <Modal onClick={(e) => e.stopPropagation()}>
-        <h3>➕ Nuovo conto</h3>
-        <form onSubmit={handleSubmit}>
-          <Field>
-            <Label>Nome del conto</Label>
-            <Input
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              required
-            />
-            {error && <Error>{error}</Error>}
-          </Field>
+      <Popup onClick={(e) => e.stopPropagation()}>
+        <Modal>
+          <h3>Nuovo conto</h3>
+          <form onSubmit={handleSubmit}>
+            <Field>
+              <Label>Nome del conto</Label>
+              <Input
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                required
+              />
+              {error && <Error>{error}</Error>}
+            </Field>
 
-          <Field>
-            <Label>Saldo iniziale (€)</Label>
-            <Input
-              type="number"
-              step="10"
-              name="balance"
-              value={form.balance}
-              onChange={handleChange}
-            />
-          </Field>
+            <Field>
+              <Label>Saldo iniziale (€)</Label>
+              <Input
+                type="number"
+                step="10"
+                name="balance"
+                value={form.balance}
+                onChange={handleChange}
+              />
+            </Field>
 
-          <Field>
-           <Label>Colore (facoltativo)</Label>
-            <ColorInput
-              type="color"
-              name="color"
-              value={form.color}
-              onChange={handleChange}
-            />
-          </Field>
-          <ButtonRow>
-            <Button type="submit">Crea conto</Button>
-            <Button onClick={onClose}>Annulla</Button>
-          </ButtonRow>
-        </form>
-      </Modal>
+            <Field>
+            <Label>Colore (facoltativo)</Label>
+              <ColorInput
+                type="color"
+                name="color"
+                value={form.color}
+                onChange={handleChange}
+              />
+            </Field>
+            <ButtonRow>
+              <Button type="submit">Crea conto</Button>
+              <Button onClick={onClose}>Annulla</Button>
+            </ButtonRow>
+          </form>
+        </Modal>
+      </Popup>
     </Overlay>
   );
 };

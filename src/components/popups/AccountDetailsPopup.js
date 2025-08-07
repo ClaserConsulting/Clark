@@ -4,11 +4,23 @@ import styled from "styled-components";
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
   z-index: 9999;
   display: flex;
   justify-content: center;
   align-items: center;
+`;
+
+const Popup = styled.div`
+  background: ${({ theme }) => theme.card};
+  padding: 2rem;
+  border-radius: 12px;
+  width: 95%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px ${({ theme }) => theme.tileShadow};
 `;
 
 const Modal = styled.div`
@@ -110,34 +122,36 @@ export function AccountDetailsPopup({ account, onClose, onSave }) {
   };
 
   return (
-    <Overlay>
-      <Modal>
-        <Title>Dettagli Conto</Title>
+    <Overlay onClick={onClose}>
+      <Popup onClick={(e) => e.stopPropagation()}>
+        <Modal>
+          <Title>Dettagli Conto</Title>
 
-        <Label>Nome</Label>
-        <Input value={name} onChange={(e) => setName(e.target.value)} />
+          <Label>Nome</Label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} />
 
-        <Label>Saldo</Label>
-        <Input
-          type="number"
-          step="10"
-          value={saldo}
-          onChange={(e) => setSaldo(e.target.value)}
-        />
+          <Label>Saldo</Label>
+          <Input
+            type="number"
+            step="10"
+            value={saldo}
+            onChange={(e) => setSaldo(e.target.value)}
+          />
 
-        <Label>Colore</Label>
+          <Label>Colore</Label>
 
-        <ColorInput
-          type="color"
-          value={color}
-          onChange={(e) => setColor(e.target.value)}
-        />
+          <ColorInput
+            type="color"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+          />
 
-        <ButtonRow>
-          <Button onClick={onClose}>Annulla</Button>
-          <Button onClick={handleSave}>Salva modifiche</Button>
-        </ButtonRow>
-      </Modal>
+          <ButtonRow>
+            <Button onClick={onClose}>Annulla</Button>
+            <Button onClick={handleSave}>Salva modifiche</Button>
+          </ButtonRow>
+        </Modal>
+      </Popup>
     </Overlay>
   );
 }

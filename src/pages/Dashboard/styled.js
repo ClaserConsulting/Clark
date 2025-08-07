@@ -2,13 +2,15 @@ import styled from "styled-components";
 import BackgroundPattern from "../../assets/icons/test-background.png";
 
 export const Page = styled.div`
-  min-height: 100vh;
+  min-height: 100%;
   width: 100%;
   background-color: #004b4f;
   background-image: url(${BackgroundPattern});
-  background-repeat: repeat;
-  background-size: contain;
+  background-repeat: no-repeat;
+  background-opacity: 0.9;
+  background-size: auto; /* o 'auto' se vuoi mantenere proporzioni reali */
   background-position: center;
+  background-attachment: fixed; /* lo sfondo resta fisso mentre scrolli */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   flex-direction: column;

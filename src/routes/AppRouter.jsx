@@ -1,14 +1,13 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import PrivateRoute from "./PrivateRoute";
-
 import Dashboard from "../pages/Dashboard";
 import Profile from "../pages/Profile";
 import Settings from "../pages/Settings";
 import Sidebar from "../layout/Sidebar";
 import NavigationBar from "../layout/NavigationBar";
 import FiltersBar from "../components/widgets/FiltersBar";
-import LoginPage from "../pages/Login";
+import LoginPage from "../pages/_Login/Login";
 import ForgotPassword from "../pages/Auth/ForgotPassword";
 import ResetPassword from "../pages/Auth/ResetPassword";
 
@@ -42,11 +41,11 @@ const LayoutWrapper = ({
     <div style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
       <NavigationBar theme={theme} toggleTheme={toggleTheme} />
 
-      <FiltersBar
+     <FiltersBar
         filters={filters}
         setFilters={setFilters}
-        accounts={accounts}
-        categories={categories}
+        accounts={accounts || []}
+        categories={categories || []}
         theme={theme}
       />
 
@@ -75,96 +74,98 @@ const AppRouter = ({
   showAll,
   setShowAll,
 }) => {
+  
   return (
-    <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <PrivateRoute>
-              <LayoutWrapper
-                theme={theme}
-                toggleTheme={toggleTheme}
-                menuPinned={menuPinned}
-                setMenuPinned={setMenuPinned}
-                menuExpanded={menuExpanded}
-                setMenuExpanded={setMenuExpanded}
-                accounts={accounts}
-                categories={categories}
-                filters={filters}
-                setFilters={setFilters}
-              >
-                <Dashboard
-                  accounts={accounts}
-                  setAccounts={setAccounts}
-                  categories={categories}
-                  filters={filters}
-                  transactions={transactions}
-                  filteredTransactions={filteredTransactions}
-                  theme={theme}
-                />
-              </LayoutWrapper>
-            </PrivateRoute>
-          }
-        />
+  <Router>
+    <Routes>
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-        <Route
-          path="/config"
-          element={
-            <PrivateRoute>
-              <LayoutWrapper
-                theme={theme}
-                toggleTheme={toggleTheme}
-                menuPinned={menuPinned}
-                setMenuPinned={setMenuPinned}
-                menuExpanded={menuExpanded}
-                setMenuExpanded={setMenuExpanded}
+      <Route
+        path="/dashboard"
+        element={
+          <PrivateRoute>
+            <LayoutWrapper
+              theme={theme}
+              toggleTheme={toggleTheme}
+              menuPinned={menuPinned}
+              setMenuPinned={setMenuPinned}
+              menuExpanded={menuExpanded}
+              setMenuExpanded={setMenuExpanded}
+              accounts={accounts}
+              categories={categories}
+              filters={filters}
+              setFilters={setFilters}
+            >
+              <Dashboard
                 accounts={accounts}
-                categories={categories}
-                filters={filters}
-                setFilters={setFilters}
-              >
-                <Settings
-                  accounts={accounts}
-                  setAccounts={setAccounts}
-                  categories={categories}
-                  setCategories={setCategories}
-                  theme={theme}
-                />
-              </LayoutWrapper>
-            </PrivateRoute>
-          }
-        />
+                transactions={transactions}
+                filteredTransactions={filteredTransactions}
+              />
+            </LayoutWrapper>
+          </PrivateRoute>
+        }
+      />
 
-        <Route
-          path="/profile"
-          element={
-            <PrivateRoute>
-              <LayoutWrapper
-                theme={theme}
-                toggleTheme={toggleTheme}
-                menuPinned={menuPinned}
-                setMenuPinned={setMenuPinned}
-                menuExpanded={menuExpanded}
-                setMenuExpanded={setMenuExpanded}
+      <Route
+        path="/config"
+        element={
+          <PrivateRoute>
+            <LayoutWrapper
+              theme={theme}
+              toggleTheme={toggleTheme}
+              menuPinned={menuPinned}
+              setMenuPinned={setMenuPinned}
+              menuExpanded={menuExpanded}
+              setMenuExpanded={setMenuExpanded}
+              accounts={accounts}
+              categories={categories}
+              filters={filters}
+              setFilters={setFilters}
+            >
+              <Settings
                 accounts={accounts}
+                setAccounts={setAccounts}
                 categories={categories}
-                filters={filters}
-                setFilters={setFilters}
-              >
-                <Profile />
-              </LayoutWrapper>
-            </PrivateRoute>
-          }
-        />
+                setCategories={setCategories}
+                theme={theme}
+              />
+            </LayoutWrapper>
+          </PrivateRoute>
+        }
+      />
 
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
-  );
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <LayoutWrapper
+              theme={theme}
+              toggleTheme={toggleTheme}
+              menuPinned={menuPinned}
+              setMenuPinned={setMenuPinned}
+              menuExpanded={menuExpanded}
+              setMenuExpanded={setMenuExpanded}
+              accounts={accounts}
+              categories={categories}
+              filters={filters}
+              setFilters={setFilters}
+            >
+              <Profile />
+            </LayoutWrapper>
+          </PrivateRoute>
+        }
+      />
+
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
+      {/* fallback: se la route non esiste, va a /login */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
+  </Router>
+);
+
 };
 
 export default AppRouter;

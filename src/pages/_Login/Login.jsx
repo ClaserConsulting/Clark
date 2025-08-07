@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import { login } from "../services/authService";
+import { login } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
-import {getCurrentUser} from "../services/authService";
+import {getCurrentUser} from "../../services/authService";
 import styled from "styled-components";
-import { ReactComponent as OTPIcon } from "../assets/icons/otp.svg";
-import { ReactComponent as DocumentIcon } from "../assets/icons/document.svg";
-import { ReactComponent as FinanceIcon } from "../assets/icons/finance.svg";
-import { ReactComponent as LockIcon } from "../assets/icons/lock.svg";
-import { ReactComponent as LineIcon } from "../assets/icons/line.svg";
-import { ReactComponent as OctopusIcon } from "../assets/icons/octopus.svg";
-import { ReactComponent as UserIcon } from "../assets/icons/user.svg";
-import BackgroundSVG from "../assets/icons/test-background.png";
+import { ReactComponent as OTPIcon } from "../../assets/icons/otp.svg";
+import { ReactComponent as DocumentIcon } from "../../assets/icons/document.svg";
+import { ReactComponent as FinanceIcon } from "../../assets/icons/finance.svg";
+import { ReactComponent as LockIcon } from "../../assets/icons/lock.svg";
+import { ReactComponent as LineIcon } from "../../assets/icons/line.svg";
+import { ReactComponent as OctopusIcon } from "../../assets/icons/octopus.svg";
+import { ReactComponent as UserIcon } from "../../assets/icons/user.svg";
+import BackgroundSVG from "../../assets/icons/test-background.png";
 
 const user = getCurrentUser();
 const hasName = Boolean(user?.name);
