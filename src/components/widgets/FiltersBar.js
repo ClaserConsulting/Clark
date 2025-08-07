@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import styled from "styled-components";
-import { formatDate } from "../utils/format";
+import { formatDate } from "../../utils/format";
 
 const FiltersContainer = styled.div`
   position: fixed;

@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { HomeIcon, ConfigIcon, UserIcon, PinIcon, HamburgerIcon } from "../icons";
+import { useNavigate, useLocation } from "react-router-dom";
+import { HomeIcon, ConfigIcon, UserIcon, PinIcon, HamburgerIcon } from "../data/icons";
 
 const SidebarContainer = styled.nav`
   position: relative;
@@ -86,30 +87,39 @@ const HamburgerWrapper = styled.div`
   }
 `;
 
-export default function Sidebar({ pinned, expanded, onPinToggle, onHoverChange, activeSection, onSelectSection, theme }) {
+export default function Sidebar({ pinned, expanded, onPinToggle, onHoverChange, theme }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const sections = [
+    { key: "dashboard", label: "Dashboard", icon: <HomeIcon color={theme === "dark" ? "#fff" : "#000"} />, path: "/" },
+    { key: "config", label: "Configurazione", icon: <ConfigIcon color={theme === "dark" ? "#fff" : "#000"} />, path: "/config" },
+    { key: "profile", label: "Profilo", icon: <UserIcon color={theme === "dark" ? "#fff" : "#000"} />, path: "/profile" },
+  ];
+
   return (
     <SidebarContainer
       expanded={expanded}
       onMouseEnter={() => onHoverChange(true)}
       onMouseLeave={() => onHoverChange(false)}
     >
-      <HamburgerWrapper onClick={() => onPinToggle()}>
+      <HamburgerWrapper onClick={onPinToggle}>
         <HamburgerIcon />
       </HamburgerWrapper>
+
       <MenuList>
-        <MenuItem active={activeSection === "dashboard"} onClick={() => onSelectSection("dashboard")}>
-          <IconWrapper><HomeIcon color={theme === "dark" ? "#fff" : "#000"} /></IconWrapper>
-          <Label expanded={expanded}>Dashboard</Label>
-        </MenuItem>
-        <MenuItem active={activeSection === "config"} onClick={() => onSelectSection("config")}>
-          <IconWrapper><ConfigIcon color={theme === "dark" ? "#fff" : "#000"} /></IconWrapper>
-          <Label expanded={expanded}>Configurazione</Label>
-        </MenuItem>
-        <MenuItem active={activeSection === "profile"} onClick={() => onSelectSection("profile")}>
-          <IconWrapper><UserIcon color={theme === "dark" ? "#fff" : "#000"} /></IconWrapper>
-          <Label expanded={expanded}>Profilo</Label>
-        </MenuItem>
+        {sections.map((section) => (
+          <MenuItem
+            key={section.key}
+            active={location.pathname === section.path}
+            onClick={() => navigate(section.path)}
+          >
+            <IconWrapper>{section.icon}</IconWrapper>
+            <Label expanded={expanded}>{section.label}</Label>
+          </MenuItem>
+        ))}
       </MenuList>
+
       <PinButton active={pinned} onClick={onPinToggle} aria-label={pinned ? "Blocca menu" : "Sblocca menu"}>
         <PinIcon />
       </PinButton>

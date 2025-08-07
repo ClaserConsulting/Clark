@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { iconGroups } from "../data/iconsCatalog";
+import { iconGroups } from "../../data/icons";
 import * as LucideIcons from "lucide-react";
 import styled from "styled-components";
 

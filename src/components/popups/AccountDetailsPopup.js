@@ -16,7 +16,7 @@ const Modal = styled.div`
   padding: 2rem;
   border-radius: 12px;
   width: 95%;
-  max-width: 600px;
+  max-width: 400px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 4px 20px ${({ theme }) => theme.tileShadow};
@@ -81,6 +81,15 @@ const Button = styled.button`
   color: white;
 `;
 
+const ColorInput = styled.input`
+  width: 100%;
+  height: 35px;
+  border: none;
+  background: ${({ theme }) => theme.background};
+  padding: 11px;
+  cursor: pointer;
+`;
+
 export function AccountDetailsPopup({ account, onClose, onSave }) {
     
   const [name, setName] = useState(account.name);
@@ -111,12 +120,18 @@ export function AccountDetailsPopup({ account, onClose, onSave }) {
         <Label>Saldo</Label>
         <Input
           type="number"
+          step="10"
           value={saldo}
           onChange={(e) => setSaldo(e.target.value)}
         />
 
         <Label>Colore</Label>
-        <Input value={color} onChange={(e) => setColor(e.target.value)} />
+
+        <ColorInput
+          type="color"
+          value={color}
+          onChange={(e) => setColor(e.target.value)}
+        />
 
         <ButtonRow>
           <Button onClick={onClose}>Annulla</Button>
