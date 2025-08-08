@@ -2,7 +2,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
-import { HomeIcon, ConfigIcon, UserIcon, PinIcon, HamburgerIcon } from "../assets/icons/icons";
+import { HomeIcon, ConfigIcon, UserIcon, PinIcon, HamburgerIcon, TransactionsIcon } from "../assets/icons/icons";
 
 const SidebarContainer = styled.nav`
   position: fixed;
@@ -109,6 +109,7 @@ export default function Sidebar({ pinned, expanded, onPinToggle, onHoverChange =
     { key: "dashboard", label: "Dashboard", icon: <HomeIcon color={theme === "dark" ? "#fff" : "#000"} />, path: "/" },
     { key: "config", label: "Configurazione", icon: <ConfigIcon color={theme === "dark" ? "#fff" : "#000"} />, path: "/config" },
     { key: "profile", label: "Profilo", icon: <UserIcon color={theme === "dark" ? "#fff" : "#000"} />, path: "/profile" },
+    { key: "transactions", label: "Transazioni", icon: <TransactionsIcon color={theme === "dark" ? "#fff" : "#000"} />, path: "/transactions" },
   ];
 
   return (

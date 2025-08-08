@@ -55,11 +55,11 @@ const ColorInput = styled.input`
 
 const Input = styled.input`
   width: 100%;
-  padding: 10px;
-  border: 1px solid ${({ theme }) => theme.hoverBg};
+  padding: 0.5rem;
   border-radius: 6px;
-  background: ${({ theme }) => theme.background};
-  color: ${({ theme }) => theme.text};
+  border: 1px solid #ccc;
+  background: ${({ theme }) => theme.input};
+  color: #000000ff;
 `;
 
 const Button = styled.button`

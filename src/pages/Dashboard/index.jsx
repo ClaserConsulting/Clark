@@ -6,7 +6,6 @@ import { AccountDetailsPopup } from "../../components/popups/AccountDetailsPopup
 import NewAccountPopup from "../../components/popups/NewAccountPopup";
 import RecentTransactions from "./widgets/RecentTransactions";
 import SpendingChart from "./widgets/SpendingChart"; // opzionale
-import transactions from "../../data/transactions";
 
 const Dashboard = ({ accounts, transactions, filteredTransactions }) => {
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -22,6 +21,7 @@ const closePopups = () => {
 return (
   <Page>
     <Container>
+
       <AccountTiles
         accounts={accounts || []}
         onClickAccount={handleClickAccount}
@@ -37,6 +37,7 @@ return (
         <WidgetTitle>Spese per categoria</WidgetTitle>
         <SpendingChart transactions={transactions} />
       </Section>
+      
     </Container>
 
     {/* POPUPs */}

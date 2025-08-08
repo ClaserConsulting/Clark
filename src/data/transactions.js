@@ -1,4 +1,4 @@
-const initialTransactions = [
+const transactions = [
   {
     id: "t1",
     date: "Tuesday 02/07/2025 08:51",
@@ -10,7 +10,8 @@ const initialTransactions = [
     accountTo: null,
     beneficiary: "IKEA",
     comment: "Auto-generata per test (uscita)",
-    type: "uscita",
+    typeId: "ty2",
+    type: "Uscita",
     importo: -470.63
   },
   {
@@ -24,7 +25,8 @@ const initialTransactions = [
     accountTo: null,
     beneficiary: "Università",
     comment: "Auto-generata per test (entrata)",
-    type: "entrata",
+    typeId: "ty1",
+    type: "Entrata",
     importo: 448.1
   },
   {
@@ -38,7 +40,8 @@ const initialTransactions = [
     accountTo: "Conto corrente",
     beneficiary: "IKEA",
     comment: "Auto-generata per test (trasferimento)",
-    type: "trasferimento",
+    typeId: "ty3",
+    type: "Trasferimento",
     importo: 67.79
   },
    {
@@ -52,7 +55,8 @@ const initialTransactions = [
     accountTo: null,
     beneficiary: "IKEA",
     comment: "Auto-generata per test (uscita)",
-    type: "uscita",
+    typeId: "ty2",
+    type: "Uscita",
     importo: -47.63
   },
   {
@@ -66,7 +70,8 @@ const initialTransactions = [
     accountTo: null,
     beneficiary: "Università",
     comment: "Auto-generata per test (entrata)",
-    type: "entrata",
+    typeId: "ty1",
+    type: "Entrata",
     importo: 44.1
   },
   {
@@ -80,9 +85,10 @@ const initialTransactions = [
     accountTo: "Conto corrente",
     beneficiary: "IKEA",
     comment: "Auto-generata per test (trasferimento)",
-    type: "trasferimento",
+    typeId: "ty3",
+    type: "Trasferimento",
     importo: 6.79
   }
 ];
 
-export default initialTransactions;
+export default transactions;

@@ -55,7 +55,7 @@ const LogoArea = styled.div`
   color: white;
   h1 {
     font-family: 'Playfair Display', serif;
-    color: #fdf2d2ff;
+    color: #f1ecdbff;
     position:absolute;
     margin-top: 2rem;
     font-size: 15rem;
@@ -70,7 +70,7 @@ const LogoArea = styled.div`
   }
   .cursive {
     font-family: 'Great Vibes', cursive;
-    color: #fdf2d2ff;
+    color: #f1ecdbff;
     position:absolute;
     margin-top: -8rem;
     font-size: 7.5rem;
@@ -80,7 +80,7 @@ const LogoArea = styled.div`
 `;
 
 const Card = styled.div`
-  background: #fdf2d2ff;
+  background: #f1ecdbff;
   padding: 2rem;
   border-radius: 24px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
@@ -161,14 +161,14 @@ const OctopusLogo = styled.div`
 
 const ActionItem = styled.div`
   display: flex;
-  color: #fdf2d2ff;
+  color: #f1ecdbff;
   font-weight: bold;
   flex-direction: column;
   align-items: center;
   max-width: 70px;
 
   svg {
-    stroke: #fdf2d2ff;
+    stroke: #f1ecdbff;
     stroke-width: 1.5;
     width: 28px;
     height: 28px;
@@ -211,7 +211,7 @@ const LoginPage = () => {
   return (
     <PageWrapper>
       <LogoArea>
-        <h1>Clerk</h1>
+        <h1>Clark</h1>
         <p>your personal</p>
         <div className="cursive">organizer</div>
       </LogoArea>
@@ -274,7 +274,7 @@ const LoginPage = () => {
         </ActionItem>
         <ActionItem>
           <LockIcon />
-          <span>Log in trouble?</span>
+          <span>Logging trouble?</span>
         </ActionItem>
       </ActionGroup>
     </ContentWrapper>

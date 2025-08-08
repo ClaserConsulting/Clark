@@ -66,6 +66,7 @@ const Dropdown = styled.div`
   animation: ${({ visible }) => (visible ? rollDown : "none")} 0.6s ease forwards;
   opacity: ${({ visible }) => (visible ? 1 : 0)};
   pointer-events: ${({ visible }) => (visible ? "all" : "none")};
+  backdrop-filter: blur(6px);
 `;
 
 const FilterGroup = styled.div`
@@ -87,7 +88,7 @@ const Select = styled.select`
   color: ${({ theme }) => theme.text};
 `;
 
-const FiltersBar = ({ filters, setFilters, accounts = [], categories = [] }) => {
+const FiltersBar = ({ filters, setFilters, types = [], accounts = [], categories = [] }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
@@ -104,6 +105,11 @@ const FiltersBar = ({ filters, setFilters, accounts = [], categories = [] }) => 
     { id: "Tutte", name: t("Tutte") },
     ...categories
   ], [categories, t]);
+  
+  const typeOptions = useMemo(() => [
+    { id: "Tutti", name: t("Tutti") },
+    ...types
+  ], [types, t]);
 
   return (
     <Container>
@@ -113,14 +119,27 @@ const FiltersBar = ({ filters, setFilters, accounts = [], categories = [] }) => 
         <span></span>
       </ToggleButton>
       <Dropdown visible={open}>
+
         <FilterGroup>
+           <FilterGroup>
+          <Label>{t("Tipo")}</Label>
+          <Select
+            value={filters.type || "Tutti"}
+            onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+          >
+            {typeOptions.map((ty) => (
+              <option key={ty.id} value={ty.name}>{ty.name}</option>
+            ))}
+          </Select>
+        </FilterGroup>
+
           <Label>{t("Account")}</Label>
           <Select
             value={filters.accountId || "Tutti"}
-            onChange={(e) => handleChange("accountId", e.target.value)}
+            onChange={(e) => setFilters({ ...filters, accountId: e.target.value })}
           >
             {accountOptions.map((acc) => (
-              <option key={acc.id} value={acc.id}>{acc.name}</option>
+              <option key={acc.id} value={acc.name}>{acc.name}</option>
             ))}
           </Select>
         </FilterGroup>
@@ -128,11 +147,11 @@ const FiltersBar = ({ filters, setFilters, accounts = [], categories = [] }) => 
         <FilterGroup>
           <Label>{t("Categorie")}</Label>
           <Select
-            value={filters.categoryId || "Tutte"}
-            onChange={(e) => handleChange("categoryId", e.target.value)}
+            value={filters.categoryName || "Tutte"}
+            onChange={(e) => setFilters({ ...filters, categoryName: e.target.value })}
           >
             {categoryOptions.map((cat) => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
+              <option key={cat.name} value={cat.name}>{cat.name}</option>
             ))}
           </Select>
         </FilterGroup>

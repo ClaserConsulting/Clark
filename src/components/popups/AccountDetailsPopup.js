@@ -4,7 +4,7 @@ import styled from "styled-components";
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(6px);
   z-index: 9999;
   display: flex;
@@ -51,7 +51,7 @@ const Input = styled.input`
   border-radius: 6px;
   border: 1px solid #ccc;
   background: ${({ theme }) => theme.input};
-  color: ${({ theme }) => theme.text};
+  color: #000000ff;
 `;
 
 const TransactionsList = styled.ul`

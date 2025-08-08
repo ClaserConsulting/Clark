@@ -1,7 +1,7 @@
 // 📁 src/pages/Dashboard/widgets/AccountTiles.jsx
 import React, { useState } from "react";
 import styled from "styled-components";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiChevronDown } from "react-icons/fi";
 
 const ToggleAll = styled.button`
   align-self: flex-end;
@@ -17,11 +17,25 @@ const ToggleAll = styled.button`
   }
 `;
 
+const TilesContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 2rem;
+`;
+
 const TilesRow = styled.div`
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
-  margin-bottom: 2rem;
-  overflow-x: auto;
+  overflow: hidden;
+  max-height: ${({ expanded }) => (expanded ? "none" : "120px")};
+  transition: max-height 0.3s ease;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  scrollbar-width: none;
 `;
 
 const Tile = styled.div`
@@ -29,7 +43,8 @@ const Tile = styled.div`
   display: flex;
   align-items: center;
   background: ${({ theme }) => theme.card};
-  box-shadow: 0 4px 12px ${({ theme }) => theme.tileShadow};
+  box-shadow: 1px 0px 5px 0px ${({ theme }) => theme.tileShadow};
+  backdrop-filter: blur(6px);
   border-radius: 12px;
   padding: 1rem;
   position: relative;
@@ -88,8 +103,21 @@ const EyeIcon = styled.div`
   color: ${({ theme }) => theme.textSoft || "#aaa"};
 `;
 
+const ExpandButton = styled.div`
+  text-align: center;
+  cursor: pointer;
+  color: ${({ theme }) => theme.primary};
+  margin-top: -0.5rem;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  &:hover {
+    opacity: 1;
+  }
+`;
 
 const AccountTiles = ({ accounts, onClickAccount, onAdd }) => {
+  const [hiddenAccounts, setHiddenAccounts] = useState({});
+  const [showAll, setShowAll] = useState(false);
   const [allHidden, setAllHidden] = useState(false);
 
   const toggleAll = () => {
@@ -100,8 +128,6 @@ const AccountTiles = ({ accounts, onClickAccount, onAdd }) => {
     setHiddenAccounts(updated);
     setAllHidden(!allHidden);
   };
-
-  const [hiddenAccounts, setHiddenAccounts] = useState({});
 
   const toggleVisibility = (accountId, e) => {
     e.stopPropagation(); // evita che scatti anche onClickAccount
@@ -121,26 +147,33 @@ const AccountTiles = ({ accounts, onClickAccount, onAdd }) => {
       <ToggleAll onClick={toggleAll}>
         {allHidden ? "Mostra tutti i saldi" : "Nascondi tutti i saldi"}
       </ToggleAll>
-      <TilesRow>
-        {accounts.map((account) => (
-          <Tile key={account.id} onClick={() => onClickAccount(account)}>
-            <ColorBar color={account.color} />
-            <TileContent>
-              <TileLabel>{account.name}</TileLabel>
-              <TileValue visible={!hiddenAccounts[account.id]}>
-                {getSaldo(account)}
-              </TileValue>
-            </TileContent>
-            <EyeIcon
-              className="eye-icon"
-              onClick={(e) => toggleVisibility(account.id, e)}
-            >
-              {hiddenAccounts[account.id] ? <FiEyeOff /> : <FiEye />}
-            </EyeIcon>
-          </Tile>
-        ))}
-        <AddTile onClick={onAdd}>＋</AddTile>
-      </TilesRow>
+      <TilesContainer>
+          <TilesRow expanded={showAll}>
+          {accounts.map((account) => (
+            <Tile key={account.id} onClick={() => onClickAccount(account)}>
+              <ColorBar color={account.color} />
+              <TileContent>
+                <TileLabel>{account.name}</TileLabel>
+                <TileValue visible={!hiddenAccounts[account.id]}>
+                  {getSaldo(account)}
+                </TileValue>
+              </TileContent>
+              <EyeIcon
+                className="eye-icon"
+                onClick={(e) => toggleVisibility(account.id, e)}>
+                {hiddenAccounts[account.id] ? <FiEyeOff /> : <FiEye />}
+              </EyeIcon>
+            </Tile>
+          ))}
+          <AddTile onClick={onAdd}>＋</AddTile>
+        </TilesRow>
+
+        {accounts.length > 6 && (
+        <ExpandButton onClick={() => setShowAll((prev) => !prev)}>
+          <FiChevronDown size={20} />
+        </ExpandButton>
+      )}
+      </TilesContainer>
     </>
   );
 };

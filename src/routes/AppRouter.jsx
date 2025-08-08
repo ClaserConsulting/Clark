@@ -4,12 +4,14 @@ import PrivateRoute from "./PrivateRoute";
 import Dashboard from "../pages/Dashboard";
 import Profile from "../pages/Profile";
 import Settings from "../pages/Settings";
-import Sidebar from "../layout/Sidebar";
-import NavigationBar from "../layout/NavigationBar";
-import FiltersBar from "../layout/FiltersBar";
+import TransactionsPage from "../pages/Transactions/index";
 import LoginPage from "../pages/_Login/Login";
 import ForgotPassword from "../pages/Auth/ForgotPassword";
 import ResetPassword from "../pages/Auth/ResetPassword";
+import Sidebar from "../layout/Sidebar";
+import NavigationBar from "../layout/NavigationBar";
+import FiltersBar from "../layout/FiltersBar";
+import RecentTransactions from "../pages/Dashboard/widgets/RecentTransactions";
 
 const LayoutWrapper = ({
   theme,
@@ -20,6 +22,7 @@ const LayoutWrapper = ({
   setMenuExpanded,
   accounts,
   categories,
+  types,
   filters,
   setFilters,
   children,
@@ -46,6 +49,7 @@ const LayoutWrapper = ({
         setFilters={setFilters}
         accounts={accounts || []}
         categories={categories || []}
+        types={types || []}
         theme={theme}
       />
 
@@ -67,6 +71,8 @@ const AppRouter = ({
   setAccounts,
   categories,
   setCategories,
+  types,
+  setTypes,
   transactions,
   filteredTransactions,
   filters,
@@ -93,12 +99,12 @@ const AppRouter = ({
               setMenuExpanded={setMenuExpanded}
               accounts={accounts}
               categories={categories}
+              types={types}
               filters={filters}
               setFilters={setFilters}
             >
               <Dashboard
                 accounts={accounts}
-                transactions={transactions}
                 filteredTransactions={filteredTransactions}
               />
             </LayoutWrapper>
@@ -151,6 +157,28 @@ const AppRouter = ({
               setFilters={setFilters}
             >
               <Profile />
+            </LayoutWrapper>
+          </PrivateRoute>
+        }
+      />
+
+       <Route
+        path="/transactions"
+        element={
+          <PrivateRoute>
+            <LayoutWrapper
+              theme={theme}
+              toggleTheme={toggleTheme}
+              menuPinned={menuPinned}
+              setMenuPinned={setMenuPinned}
+              menuExpanded={menuExpanded}
+              setMenuExpanded={setMenuExpanded}
+              accounts={accounts}
+              categories={categories}
+              filters={filters}
+              setFilters={setFilters}
+            >
+              <TransactionsPage transactions={transactions}/>
             </LayoutWrapper>
           </PrivateRoute>
         }
