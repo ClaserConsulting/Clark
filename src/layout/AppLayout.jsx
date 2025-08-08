@@ -4,7 +4,6 @@ import styled from "styled-components";
 import Sidebar from "./Sidebar";
 import NavigationBar from "../layout/NavigationBar";
 
-
 const Layout = styled.div`
   display: flex;
 `;
@@ -48,7 +47,7 @@ const ContentWrapper = styled.div`
   min-height: 100vh;
 `;
 
-const AppLayout = ({ children, darkMode, toggleTheme }) => {
+const AppLayout = ({ children, theme, toggleTheme, menuPinned, setMenuPinned, menuExpanded, setMenuExpanded }) => {
   const [pinned, setPinned] = useState(true);
   const [hovered, setHovered] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -77,15 +76,15 @@ const AppLayout = ({ children, darkMode, toggleTheme }) => {
   return (
     <Layout>
       <FixedTop>
-        <NavigationBar darkMode={darkMode} toggleTheme={toggleTheme} />
+          <NavigationBar theme={theme} toggleTheme={toggleTheme} />
       </FixedTop>
 
       <Sidebar
         pinned={pinned}
         expanded={expanded}
         onPinToggle={handlePinToggle}
-        onHoverChange={setHovered}
-        theme={darkMode ? "dark" : "light"}
+        onHoverChange={(expanded) => !menuPinned && setMenuExpanded(expanded)}
+        theme={theme}
       />
 
       <Overlay active={mobileSidebarOpen} onClick={() => setMobileSidebarOpen(false)} />

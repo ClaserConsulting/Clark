@@ -1,73 +1,97 @@
-# Clark
-Project for wallet and documents management
+# Clark — Personal Finance Organizer 🐙
 
-# Getting Started with Create React App
+Clark è un'app elegante e potente per organizzare le tue finanze in modo intelligente e rilassato. Con un'interfaccia moderna, personalizzazione completa e un polpo fidato al tuo fianco, non dovrai più preoccuparti del caos contabile.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+---
 
-## Available Scripts
+## ✨ Funzionalità principali
 
-In the project directory, you can run:
+- 🧩 **Dashboard interattiva** con widget modulari
+- 👁️‍🗨️ **Gestione account** con visibilità toggle (occhietto + asterischi)
+- 💳 **Visualizzazione e filtro transazioni**
+- 🧠 **Temi dark/light** con salvataggio in `localStorage`
+- 🌍 **Supporto multilingua** (IT, EN, DE, FR) via i18next
+- 📱 **Responsive design** per desktop e mobile
+- 🔐 **Routing protetto + login personalizzato**
+- 🔮 **Animazioni fluide + layout persistente con Sidebar & Topbar**
+- 🧪 **Componenti modulari** (Popups, Tiles, Charts)
+- 🎯 **Preparazione per gamification e sincronizzazione PSD2**
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🚀 Installazione
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```bash
+git clone https://github.com/ClaserConsulting/Clark.git
+cd Clark
+npm install
+npm start
+```
 
-### `npm test`
+L'app sarà disponibile su `http://localhost:3000`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 📁 Struttura del progetto
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+src/
+│
+├── components/         // Navbar, Sidebar, Logo, Popups...
+├── pages/              // Dashboard, Login, Settings, Profile
+├── data/               // Dummy data: accounts, transactions
+├── utils/              // Themes, i18n config
+├── routes/             // Routing protetto (PrivateRoute, AppRouter)
+├── layout/             // AppLayout con struttura a L
+└── assets/             // Icone, immagini, video
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🧪 Comandi utili
 
-### `npm run eject`
+```bash
+npm run build        # build produzione
+npm run lint         # verifica stile
+npm run format       # (prettier) formatta il codice
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🧱 Stack Tecnologico
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- React 18, Styled-Components
+- React Router DOM
+- i18next + browser-language-detector
+- Chart.js, ESLint, Prettier
+- Vite/Webpack (a seconda del setup)
+- GitHub + Git flow
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
+## 🛣️ Roadmap futura
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- [ ] Integrazione API backend
+- [ ] Salvataggio transazioni in database
+- [ ] Login OAuth2 + gestione utenti reali
+- [ ] Sincronizzazione bancaria (PSD2)
+- [ ] Funzionalità pro e gamification
+- [ ] App mobile / PWA
+- [ ] Video marketing animato (in lavorazione)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+## 👨‍💻 Autore
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Claudio Salvatore
+Contatti → [LinkedIn] | [Email]
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## ⚖️ Licenza
 
-### Making a Progressive Web App
+MIT License — Feel free to fork, build, remix (citando il progetto)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+> “Clark – 8 tentacoli. 0 stress.” 🐙

@@ -2,7 +2,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
-import { HomeIcon, ConfigIcon, UserIcon, PinIcon, HamburgerIcon } from "../data/icons";
+import { HomeIcon, ConfigIcon, UserIcon, PinIcon, HamburgerIcon } from "../assets/icons/icons";
 
 const SidebarContainer = styled.nav`
   position: fixed;
@@ -17,6 +17,7 @@ const SidebarContainer = styled.nav`
   user-select: none;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   z-index: 1001;
 
   @media (max-width: 768px) {

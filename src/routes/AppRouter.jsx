@@ -6,7 +6,7 @@ import Profile from "../pages/Profile";
 import Settings from "../pages/Settings";
 import Sidebar from "../layout/Sidebar";
 import NavigationBar from "../layout/NavigationBar";
-import FiltersBar from "../components/widgets/FiltersBar";
+import FiltersBar from "../layout/FiltersBar";
 import LoginPage from "../pages/_Login/Login";
 import ForgotPassword from "../pages/Auth/ForgotPassword";
 import ResetPassword from "../pages/Auth/ResetPassword";

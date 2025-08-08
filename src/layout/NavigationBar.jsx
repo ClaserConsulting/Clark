@@ -4,10 +4,11 @@ import { FiMoon, FiSun } from "react-icons/fi";
 import Logo from "../assets/logo";
 import { useTranslation } from "react-i18next";
 import i18n from "../i18n/config";
-import { UserIcon, UpgradeIcon, LogoutIcon } from "../data/icons";
+import { UserIcon, UpgradeIcon, LogoutIcon } from "../assets/icons/icons";
 import { keyframes } from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { logout, isAuthenticated } from "../services/authService";
+import AvatarDropdown from "../layout/AvatarDropdown";
 
 const fadeInScale = keyframes`
   from {
@@ -31,6 +32,7 @@ const Nav = styled.nav`
   padding: 0 2rem;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
   z-index: 1100;
+
 `;
 
 const Brand = styled.div`
@@ -39,6 +41,7 @@ const Brand = styled.div`
   font-size: 1.5rem;
   font-weight: bold;
   gap: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
 `;
 
 const Controls = styled.div`
@@ -72,20 +75,6 @@ const LanguageSelector = styled.select`
   cursor: pointer;
 `;
 
-const Avatar = styled.div`
-  background-color: #006666;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  font-size: 0.9rem;
-  cursor: pointer;
-`;
-
 const Dropdown = styled.div`
   position: absolute;
   top: 56px;
@@ -114,17 +103,12 @@ const DropdownItem = styled.div`
 // 👤 ESEMPIO UTENTE
 const user = {
   nome: "Claudio",
-  cognome: "Serra",
+  cognome: "Salvatore",
 };
 
-const getInitials = (user) => {
-  if (!user) return "??";
-  const { nome, cognome } = user;
-  if (nome && cognome) return nome[0] + cognome[0];
-  return nome?.slice(0, 2).toUpperCase() || "??";
-};
+const fullName = user?.cognome ? `${user.nome} ${user.cognome}` : user.nome;
 
-const NavigationBar = ({ darkMode, toggleTheme }) => {
+const NavigationBar = ({ theme, toggleTheme }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
@@ -143,8 +127,8 @@ const NavigationBar = ({ darkMode, toggleTheme }) => {
 
   return (
     <Nav>
-      <Brand>
-        <Logo darkMode={darkMode} style={{ height: 32, filter: "drop-shadow(0 1px 4px rgba(0,0,0,0.3))" }} />
+      <Brand style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600 }}>
+        <Logo darkMode={theme === "dark"} style={{ height: 32, filter: "drop-shadow(0 1px 4px rgba(0,0,0,0.3))" }} />
         Clark
       </Brand>
 
@@ -160,12 +144,10 @@ const NavigationBar = ({ darkMode, toggleTheme }) => {
         </LanguageSelector>
 
         <ToggleTheme onClick={toggleTheme}>
-          {darkMode ? <FiSun /> : <FiMoon />}
+          {theme === "dark" ? <FiSun /> : <FiMoon />}
         </ToggleTheme>
 
-        <Avatar onClick={() => setShowMenu((prev) => !prev)}>
-          {getInitials(user)}
-        </Avatar>
+        <AvatarDropdown user={{ name: fullName }} />
 
         {showMenu && (
           <Dropdown>
