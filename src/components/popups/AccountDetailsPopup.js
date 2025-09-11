@@ -105,7 +105,7 @@ const ColorInput = styled.input`
 export function AccountDetailsPopup({ account, onClose, onSave }) {
     
   const [name, setName] = useState(account.name);
-  const [saldo, setSaldo] = useState(account.saldo);
+  const [balance, setBalance] = useState(account.balance);
   const [color, setColor] = useState(account.color);
   
   if (!account) return null;
@@ -114,10 +114,10 @@ export function AccountDetailsPopup({ account, onClose, onSave }) {
     const updatedAccount = {
       ...account,
       name,
-      saldo: parseFloat(saldo),
+      balance: parseFloat(balance),
       color,
     };
-    onSave(updatedAccount);
+    onSave?.(updatedAccount);
     onClose();
   };
 
@@ -134,8 +134,8 @@ export function AccountDetailsPopup({ account, onClose, onSave }) {
           <Input
             type="number"
             step="10"
-            value={saldo}
-            onChange={(e) => setSaldo(e.target.value)}
+            value={balance}
+            onChange={(e) => setBalance(e.target.value)}
           />
 
           <Label>Colore</Label>

@@ -2,16 +2,16 @@
 import React from "react";
 import styled from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
-import { HomeIcon, ConfigIcon, UserIcon, PinIcon, HamburgerIcon, TransactionsIcon } from "../assets/icons/icons";
+import { HomeIcon, ConfigIcon, UserIcon, PinIcon, HamburgerIcon, TransactionsIcon, BookIcon, ListIcon } from "../assets/icons/icons";
 
 const SidebarContainer = styled.nav`
-  position: fixed;
-  top: 64px;
+  position: sticky;
+  top: var(--topbar-h, 120px);
   left: 0;
   width: ${({ expanded }) => (expanded ? "220px" : "56px")};
   background: ${({ theme }) => theme.sidebarBg};
   color: ${({ theme }) => theme.sidebarColor};
-  height: calc(100vh - 64px);
+  height: calc(100vh - var(--topbar-h, 64px));
   transition: width 0.3s ease, transform 0.3s ease;
   box-shadow: 2px 0 8px rgb(0 0 0 / 0.15);
   user-select: none;
@@ -101,15 +101,15 @@ const HamburgerWrapper = styled.div`
   }
 `;
 
-export default function Sidebar({ pinned, expanded, onPinToggle, onHoverChange = () => {}, theme }) {
+export default function Sidebar({ pinned, menuExpanded = false, setMenuExpanded = () => {}, expanded, onPinToggle, onHoverChange = () => {}, theme }) {
   const navigate = useNavigate();
   const location = useLocation();
 
   const sections = [
-    { key: "dashboard", label: "Dashboard", icon: <HomeIcon color={theme === "dark" ? "#fff" : "#000"} />, path: "/" },
-    { key: "config", label: "Configurazione", icon: <ConfigIcon color={theme === "dark" ? "#fff" : "#000"} />, path: "/config" },
-    { key: "profile", label: "Profilo", icon: <UserIcon color={theme === "dark" ? "#fff" : "#000"} />, path: "/profile" },
-    { key: "transactions", label: "Transazioni", icon: <TransactionsIcon color={theme === "dark" ? "#fff" : "#000"} />, path: "/transactions" },
+    { key: "dashboard", label: "Dashboard", icon: <HomeIcon color={theme === theme ? "#fff" : "#000"} />, path: "/" },
+    { key: "config", label: "Configurazione", icon: <ConfigIcon color={theme === theme ? "#fff" : "#000"} />, path: "/config" },
+    { key: "transactions", label: "Transazioni", icon: <TransactionsIcon color={theme === theme ? "#fff" : "#000"} />, path: "/transactions" },
+    { key: "beneficiaries", label: "Beneficiari", icon: <BookIcon color={theme === theme ? "#fff" : "#000"} />, path: "/beneficiaries" },
   ];
 
   return (

@@ -1,4 +1,4 @@
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 import BackgroundPattern from "../../assets/icons/test-background.png";
 
 
@@ -57,7 +57,7 @@ export const fadeIn = keyframes`
 export const Container = styled.div`  
   max-width: 1200px;
   margin: 0 auto;
-  width: 75%;
+  width: 90%;
   animation: ${fadeIn} 0.5s ease
 `;
 
@@ -73,7 +73,7 @@ export const Item = styled.div`
     {if (isTransfer)
       return "rgba(255, 255, 255, 0.2)"; 
       return isIncome 
-      ? "rgba(101, 204, 163, 0.1)" : "rgba(207, 96, 96, 0.25)"}};
+      ? "rgba(0, 87, 52, 0.1)" : "rgba(207, 96, 96, 0.25)"}};
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-left: 5px solid ${({ isIncome, isTransfer}) => 
     {if (isTransfer) 
@@ -103,8 +103,36 @@ export const WidgetBox = styled.div`
   backdrop-filter: blur(10px);
 `;
 
-export const WidgetTitle = styled.h2`
+const popIn = keyframes`
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+`;
+
+export const BookmarkTitle = styled.h3`
+ /* altezza fissa: ci serve per calcolare l’overlap */
+  --bm-h: 25px;
+  position: relative;
+  z-index: 3;
+  display: inline-block;    /* non full width */
+  height: var(--bm-h);
+  line-height: var(--bm-h);
+  margin: 0 0 0.8rem 0px;    /* leggero offset a sx */
+  padding: 0 18px;
+  font-weight: 800;
   font-size: 1.25rem;
-  color: white;
-  margin-bottom: 1rem;
+  color: ${({ theme }) => theme.text};
+  background: ${({ theme }) => theme.card};
+  filter: drop-shadow(0 1px 6px ${({ theme }) => theme.tileShadow});
+  ${({ $animate }) => $animate && css`animation: ${popIn} .12s ease-out;`}
+
+  /* lato destro obliquo con clip-path */
+  clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 100%, calc(100% - 10px) 100%, 0 100%);
+
+  /* linguetta sinistra */
+  &::before{
+    content:"";
+    position:absolute; left:-10px; top:0; bottom:0; width:10px;
+    background: ${({ theme }) => theme.cardHover || "rgba(255,255,255,.08)"};
+    border-radius: 8px 0 0 8px;
+  }
 `;
