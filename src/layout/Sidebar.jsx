@@ -3,6 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
 import { HomeIcon, ConfigIcon, UserIcon, PinIcon, HamburgerIcon, TransactionsIcon, BookIcon, ListIcon } from "../assets/icons/icons";
+import { TrophyIcon } from "lucide-react";
 
 const SidebarContainer = styled.nav`
   position: sticky;
@@ -110,6 +111,7 @@ export default function Sidebar({ pinned, menuExpanded = false, setMenuExpanded 
     { key: "config", label: "Configurazione", icon: <ConfigIcon color={theme === theme ? "#fff" : "#000"} />, path: "/config" },
     { key: "transactions", label: "Transazioni", icon: <TransactionsIcon color={theme === theme ? "#fff" : "#000"} />, path: "/transactions" },
     { key: "beneficiaries", label: "Beneficiari", icon: <BookIcon color={theme === theme ? "#fff" : "#000"} />, path: "/beneficiaries" },
+    { key: "obiettivi", label: "Obiettivi", icon: <TrophyIcon color={theme === theme ? "#fff" : "#000"} />, path: "/obiettivi" },
   ];
 
   return (

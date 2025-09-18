@@ -8,11 +8,15 @@ import Dashboard from "../pages/Dashboard";
 import Profile from "../pages/Profile";
 import Settings from "../pages/Settings";
 import TransactionsPage from "../pages/Transactions/index";
+import Goals from "../pages/Goals";
 import LoginPage from "../pages/_Login/Login";
 import ForgotPassword from "../pages/Auth/ForgotPassword";
 import ResetPassword from "../pages/Auth/ResetPassword";
+import Scheduled from "../pages/Scheduled";
 import Sidebar from "../layout/Sidebar";
 import NavigationBar from "../layout/NavigationBar";
+import NotificationsLog from "../pages/NotificationsLog";
+import ActivityLog from "../pages/ActivityLog";
 import { SearchProvider } from "../context/SearchContext";
 
 /* ---------------- Layout wrapper ---------------- */
@@ -247,11 +251,6 @@ const AppRouter = ({
             }
           />
 
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        
           <Route
             path="/detail/:entity/:value"
             element={
@@ -299,6 +298,69 @@ const AppRouter = ({
               </PrivateRoute>
             }
           />
+          <Route
+            path="/obiettivi"
+            element={
+              <PrivateRoute>
+                <LayoutWrapper
+                  theme={theme} toggleTheme={toggleTheme}
+                  menuPinned={menuPinned} setMenuPinned={setMenuPinned}
+                  menuExpanded={menuExpanded} setMenuExpanded={setMenuExpanded}
+                  accounts={accounts} categories={categories} types={types}
+                  filters={filters} setFilters={setFilters}
+                  allTransactions={transactions} docs={[]}
+                >
+                  <Goals/>
+                </LayoutWrapper>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/notifiche"
+            element={
+              <PrivateRoute>
+                <LayoutWrapper
+                  theme={theme} toggleTheme={toggleTheme}
+                  menuPinned={menuPinned} setMenuPinned={setMenuPinned}
+                  menuExpanded={menuExpanded} setMenuExpanded={setMenuExpanded}
+                  accounts={accounts} categories={categories} types={types}
+                  filters={filters} setFilters={setFilters}
+                  allTransactions={transactions} docs={[]}
+                >
+                  <NotificationsLog />
+                </LayoutWrapper>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/log-attivita"
+            element={
+              <PrivateRoute>
+                <LayoutWrapper
+                  theme={theme} toggleTheme={toggleTheme}
+                  menuPinned={menuPinned} setMenuPinned={setMenuPinned}
+                  menuExpanded={menuExpanded} setMenuExpanded={setMenuExpanded}
+                  accounts={accounts} categories={categories} types={types}
+                  filters={filters} setFilters={setFilters}
+                  allTransactions={transactions} docs={[]}
+                >
+                  <ActivityLog />
+                </LayoutWrapper>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/pianificate"
+          />
+
+
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
 
         </Routes>
       </Router>

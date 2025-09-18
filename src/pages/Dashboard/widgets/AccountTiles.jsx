@@ -77,7 +77,7 @@ const TilesClipper = styled.div`
 /* Griglia: 4 per riga su desktop */
 const TilesGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
   grid-auto-rows: var(--tile-h);
   gap: 12px;
   min-width: 0;

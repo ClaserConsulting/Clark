@@ -1096,6 +1096,28 @@ export default function RecentTransactions({
 
   // filtro AND
   const matchesAND = React.useCallback((t) => {
+    // Filtri provenienti dall'analisi (click da SpendingPanel)
+    if (analysis && analysis.dimension) {
+      const v = String(analysis.value || "").toLowerCase();
+      if (analysis.dimension === "beneficiary") {
+        if (String(t?.beneficiary || "").toLowerCase() !== v) return false;
+     } else if (analysis.dimension === "category") {
+        const byName = String(t?.categoryName || "").toLowerCase() === v;
+        const byId   = String(t?.categoryId || "") === analysis.value;
+        if (!(byName || byId)) return false;
+      } else if (analysis.dimension === "subcategory") {
+        if (String(t?.subcategory || "").toLowerCase() !== v) return false;
+      } else if (analysis.dimension === "tag") {
+        const tags = (t?.tag || []).map(s=>String(s).toLowerCase());
+        if (!tags.includes(v)) return false;
+      } else if (analysis.dimension === "month") {
+        // "YYYY-MM" dal click su una colonna/etichetta mese
+        const d = parseDateEU(t?.date);
+        const key = d ? `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}` : "";
+        if (key !== analysis.value) return false;
+      }
+    }
+
     if (fTypes.length && !fTypes.includes(t.type)) return false;
     if (fCats.length  && !fCats.includes(t.categoryName)) return false;
     if (fSubs.length  && !fSubs.includes(t.subcategory)) return false;
@@ -1114,7 +1136,7 @@ export default function RecentTransactions({
   // lista filtrata + ordinata
   const filteredItems = useMemo(
     () => sortByDateDesc((transactions||[]).filter(matchesAND)),
-    [transactions, fTypes, fCats, fSubs, fAccounts, fBenefs, fTags]
+    [transactions, fTypes, fCats, fSubs, fAccounts, fBenefs, fTags, analysis?.dimension, analysis?.value]
   );
 
   // visibilità paginata

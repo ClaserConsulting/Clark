@@ -1,6 +1,8 @@
 // 📁 src/pages/Dashboard/index.jsx
 import React, { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import * as Lucide from "lucide-react";
+import WidgetFrame from "./widgets/WidgetFrame";
+import { Star, Gauge, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import styled from "styled-components";
 import { Page, Container, BookmarkTitle, Section } from "./styled";
 import AccountTiles from "./widgets/AccountTiles";
@@ -11,7 +13,8 @@ import FavoritesBar from "./widgets/FavoritesBar";
 import BudgetsPanel from "./widgets/BudgetsPanel";
 import RecentTransactions from "./widgets/RecentTransactions";
 import TransactionEditPopup from "../../components/popups/TransactionEditPopup";
-import SpendingPanel from "./widgets/SpendingPanel"; // opzionale
+import SpendingPanel from "./widgets/SpendingPanel";
+import NextExpensesPanel from "./widgets/NextExpensesPanel";
 import {categories} from "../../data/categories"
 import { accounts as defaultAccounts } from "../../data/accounts";
 import { formatAnalysisTitle } from "../../utils/format";
@@ -117,6 +120,31 @@ const PageGrid = styled.div`
   overflow-x: hidden;
 `;
 
+// === 3-col shell: left rail | center stack | right rail ===
+const MainGrid = styled.div`
+  --center-max: 980px; /* stessa “impronta” delle Transazioni */
+  display: grid;
+  grid-template-columns: 1fr min(var(--center-max), 100%) 1fr;
+  grid-template-rows: auto auto auto auto; /* accounts, budget, favorites, transactions */
+  gap: 16px;
+  align-items: start;
+`;
+
+const CenterRow1 = styled.div` grid-column: 2; grid-row: 1; `;
+const CenterRow2 = styled.div` grid-column: 2; grid-row: 2; `;
+const CenterRow3 = styled.div` grid-column: 2; grid-row: 3; `;
+const CenterRow4 = styled.div` grid-column: 2; grid-row: 4; `;
+const LeftRailAtTx  = styled.div` grid-column: 1; grid-row: 4; `;
+const RightRailAtTx = styled.div` grid-column: 3; grid-row: 4; `;
+
+const SideWidget = styled(Section)`
+  position: sticky;
+  top: 96px; /* resta in vista durante lo scroll */
+`;
+const SideTitle = styled.h4`
+  margin: 0 0 8px 0; display: inline-flex; gap: 8px; align-items: center;
+`;
+
 // Riga vuota sotto la navbar, allineata con il contenuto (a destra della sidebar)
 const SpacerRow = styled.div`
   grid-area: spacer;
@@ -133,20 +161,22 @@ const TwoCol = styled.div`
   min-width: 0;
   width: 100%;
 
-  /* Mobile: stack verticale */
+  /* Mobile */
   grid-template-columns: 1fr;
   grid-template-areas:
+    "widL"
+    "widR"
     "headL"
     "left"
     "headR"
     "right";
 
   @media (min-width: 1100px) {
-    grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);     /* ~60/40 */
-    grid-template-rows: auto 1fr;  /* titoli sopra, pannelli sotto */
+    grid-template-columns: minmax(0, 6fr) minmax(0, 4fr); /* ~60/40 */
     grid-template-areas:
-      "headL headR"
-      "left  right";
+      "widL  widR"   /* riga widget: Budget | Preferiti */
+      "headL headR"  /* titoli allineati */
+      "left  right"; /* pannelli principali */
   }
 `;
 
@@ -207,13 +237,6 @@ const LeftCol = styled.div`
   align-content: start;
 `;
 
-const RecentPanel = styled(Section)`
-  position: relative;
-  overflow: visible;
-  margin-top: -16px;
-  padding-top: calc(16px + 8px);
-`;
-
 const RightCol = styled.div`
   grid-area: right;
   display: grid;
@@ -244,10 +267,136 @@ const WideRow = styled(Section)`
   padding-left: 8px;            /* allineato alle tiles */
 `;
 
+const WidgetsRow = styled.div`
+  grid-area: wide1;
+  padding-left: 8px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+`;
+const Col6 = styled.div`grid-column: span 12; @media(min-width:1100px){ grid-column: span 6; }`;
+
 const WithRightRail = styled.div`
   padding-right: var(--right-rail-width, 0px);
   transition: padding-right .18s ease;
 `;
+
+// ============ LAYOUT 3 COLONNE ROBUSTO ============
+
+const Board = styled.div`
+  /* knob regolabili (puoi sovrascriverli nell'inline style di <Board/>) */
+  --rail-min: 300px;
+  --rail-max: 380px;
+  --center-min: 820px;         /* <--- MINIMO GARANTITO per la colonna Transazioni */
+  --center-max: 1080px;        /* <--- larghezza "desiderata" del centro */
+  --page-max: 1840px;
+  --gap-x: clamp(12px, 2vw, 24px);
+  --top-align: 20px;
+
+  display: grid;
+  grid-template-columns:
+    clamp(var(--rail-min), 22vw, var(--rail-max))
+    minmax(var(--center-min), var(--center-max))
+    clamp(var(--rail-min), 22vw, var(--rail-max));
+  grid-template-areas: "left center right";
+  column-gap: var(--gap-x);
+  align-items: start;
+  justify-content: center;
+
+  width: 100%;
+  max-width: min(100%, var(--page-max));
+  margin: 0 auto;
+  padding-inline: clamp(8px, 1.4vw, 24px);
+
+  /* Se lo spazio non basta per i minimi → impila sotto, così il centro non collassa */
+  @media (max-width: calc(2 * var(--rail-min) + var(--center-min) + 120px)) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "center"
+      "left"
+      "right";
+  }
+`;
+
+const CenterStack = styled.div`
+  grid-area: center;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  margin-top: var(--top-align);
+  min-width: 0; /* fondamentale per evitare overflow */
+  & * { min-width: 0; } /* i figli non devono imporre larghezze */
+`;
+
+const StackCard = styled(Section)`
+  width: 100%;
+  overflow: visible;
+  & * { min-width: 0; }       /* evita comprimimenti strani */
+`;
+
+const LeftRail  = styled.div`
+  grid-area: left;
+  margin-top: var(--top-align);
+  min-width: 0;
+`;
+
+const RightRail = styled.div`
+  grid-area: right;
+  margin-top: var(--top-align);
+  min-width: 0;
+`;
+
+/* pannelli rail senza scrollbar interne */
+const RailPanel = styled(Section)`
+  overflow: visible !important;
+  max-height: none !important;
+  & * { min-width: 0; }
+`;
+
+const RightRailPanel = styled(RailPanel)``;
+
+/* pannello Transazioni: evita testi “verticali” quando lo spazio è tirato */
+const RecentPanel = styled(Section)`
+  overflow: visible;
+  & * { min-width: 0; }
+  word-break: break-word;
+`;
+
+const RailTitle = styled.div`
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  margin-bottom:8px;
+  h4 { margin:0; display:inline-flex; gap:8px; align-items:center; }
+`;
+
+const TriGrid = styled.div`
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(300px, 380px) minmax(680px, 1fr) minmax(300px, 380px);
+  align-items: start;
+  width: 100%;
+ /* aria dall’alto (configurabile via inline style) */
+ padding-top: var(--top-gap, 28px);
+ /* niente overflow: nascosto, serve che i flyout (preferiti) possano “uscire” */
+ overflow: visible;
+`;
+
+const BellFab = styled.button`
+  position: fixed; right: 14px; top: 86px; z-index: 2500;
+  width: 38px; height: 38px; border-radius: 999px;
+  display: grid; place-items: center; cursor: pointer;
+  border: 1px solid ${({theme})=>theme.separator};
+  background: ${({theme})=>theme.card}; color: ${({theme})=>theme.text};
+  box-shadow: 0 10px 24px rgba(0,0,0,.28);
+  &:hover{ background: ${({theme})=>theme.cardHover}; }
+  .dot{
+    position:absolute; top:4px; right:4px; width:8px; height:8px; border-radius:999px;
+    background:#f59e0b;
+  }
+`;
+
+const WidgetLeft  = styled(Section)` grid-area: widL;  margin-top:-16px; padding-top:calc(16px + 8px); `;
+const WidgetRight = styled(Section)` grid-area: widR;  margin-top:-16px; padding-top:calc(16px + 8px); `;
 
 const Dashboard = ({ accounts, transactions, filteredTransactions }) => {
   // 🔧 Stato locale per far apparire subito la nuova tile
@@ -302,6 +451,7 @@ const Dashboard = ({ accounts, transactions, filteredTransactions }) => {
 
   // Preferiti (beneficiari/categorie/sottocategorie)
   const [favorites, setFavorites] = useState([]); // [{type:'beneficiary'|'category'|'subcategory', id?, label}]
+  
   const favUniverse = useMemo(()=>{
     const set = new Map();
     // beneficiari
@@ -323,6 +473,7 @@ const Dashboard = ({ accounts, transactions, filteredTransactions }) => {
     // TODO: apri un tuo dialog per scegliere; stub:
     console.log("Aggiungi preferito");
   }, []);
+
   const handleSelectFavorite = useCallback((fav) => {
     if (!fav) { setRtFilterFn(null); return; }
     // imposta un filtro che impatta RecentTransactions + SpendingPanel
@@ -340,6 +491,63 @@ const Dashboard = ({ accounts, transactions, filteredTransactions }) => {
     { id:"b1", name:"Spesa mensile Alimentari", period:"month", limit:300,
       include:{ beneficiaries:[], categories:["Alimentari"], subcategories:[], tags:[] } }
   ]);
+
+  // meta: cosa è spostabile/nascondibile
+  const WIDGETS_META = {
+    favorites: { title: "Preferiti", icon: Star,   canMove: true,  canHide: true  },
+    budgets:   { title: "Controllo budget", icon: Gauge, canMove: true,  canHide: true  },
+    // regole future:
+    // accounts: { canMove:false, canHide:false }
+    // recent:   { canMove:true,  canHide:false }
+  };
+  const [row1Order, setRow1Order] = useState(["favorites", "budgets"]);
+
+  // DnD molto semplice
+  const [dragKey, setDragKey] = useState(null);
+  const onDragStartWidget = (key) => (e) => { setDragKey(key); e.dataTransfer.setData("text/plain", key); };
+  const onDragOverWidget  = (e) => e.preventDefault();
+  const onDropWidget = (targetKey) => (e) => {
+    e.preventDefault();
+    const src = dragKey || e.dataTransfer.getData("text/plain");
+    if (!src || src === targetKey) return;
+    setRow1Order(prev => {
+      const arr = [...prev];
+      const from = arr.indexOf(src);
+      const to   = arr.indexOf(targetKey);
+      if (from<0 || to<0) return arr;
+      arr.splice(to, 0, arr.splice(from,1)[0]);
+      return arr;
+    });
+    setDragKey(null);
+  };
+
+// collapse e visibilità widget
+const [favCollapsed, setFavCollapsed] = useState(false);
+const [budgetCollapsed, setBudgetCollapsed] = useState(false);
+const [hiddenWidgets, setHiddenWidgets] = useState({ favorites:false, budgets:false });
+
+// normalizza suggerimenti per FavoritesBar (icona = stringa)
+const normalizeFavSuggestions = useCallback((txs = [], cats = [])=>{
+  const m = new Map();
+  (txs||[]).forEach(t=>{
+    const b = String(t.beneficiary||"").trim();
+    if (b) m.set(`beneficiary:${b}`, { type:"beneficiary", label:b, icon:"User" });
+  });
+  (cats||[]).forEach(c=>{
+    const name = String(c?.name||"").trim();
+    if (name) m.set(`category:${name}`, { type:"category", label:name, icon:"Folder" });
+    (c?.subcategories||[]).forEach(s=>{
+      const sub = String(s||"").trim();
+      if (sub) m.set(`subcategory:${sub}`, { type:"subcategory", label:sub, icon:"Tag" });
+    });
+  });
+  return Array.from(m.values());
+},[]);
+
+const favSuggestions = useMemo(
+  () => normalizeFavSuggestions(filteredTransactions, categories),
+  [filteredTransactions, categories, normalizeFavSuggestions]
+);
 
   // Notifiche demo
   const [alerts, setAlerts] = useState([
@@ -379,6 +587,54 @@ const Dashboard = ({ accounts, transactions, filteredTransactions }) => {
     return null;
   };
 
+  // Filtro derivato dall'analisi (click da SpendingPanel)
+    const analysisFilter = useMemo(() => {
+      if (!analysis || !analysis.dimension) return null;
+      const v = String(analysis.value || "").toLowerCase();
+
+      return (t) => {
+        if (!t) return false;
+        switch (analysis.dimension) {
+          case "beneficiary":
+            return String(t.beneficiary || "").toLowerCase() === v;
+          case "category":
+            return (
+              String(t.categoryName || "").toLowerCase() === v ||
+              String(t.categoryId || "") === analysis.value
+            );
+          case "subcategory":
+            return String(t.subcategory || "").toLowerCase() === v;
+          case "tag": {
+            const tags = (t.tag || []).map((s) => String(s).toLowerCase());
+            return tags.includes(v);
+          }
+          case "month": {
+            const d = parseDateEU(t?.date);
+            const key = d ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}` : "";
+            return key === analysis.value;
+          }
+          default:
+            return true;
+        }
+      };
+    }, [analysis]);
+
+    // Combina eventuale filtro “manuale” (preferiti/altro) con quello da analisi
+    const combinedFilter = useMemo(() => {
+      if (rtFilterFn && analysisFilter) return (t) => rtFilterFn(t) && analysisFilter(t);
+      return rtFilterFn || analysisFilter || null;
+    }, [rtFilterFn, analysisFilter]);
+
+    // Base e derivato per RecentTransactions
+    const recentBase = useMemo(
+      () => withBalances(filteredTransactions || [], accounts || []),
+      [filteredTransactions, accounts]
+    );
+    const recentTx = useMemo(
+      () => (combinedFilter ? recentBase.filter(combinedFilter) : recentBase),
+      [recentBase, combinedFilter]
+    );
+
   useEffect(() => {
   if (analysis && spendingRef.current) {
     spendingRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -397,161 +653,204 @@ const Dashboard = ({ accounts, transactions, filteredTransactions }) => {
     return () => clearTimeout(t);
   }, [openTxId, clearOpenTx]);
 
-  return (
-    <Page>
-      <WithRightRail>
-        <Container>
-          <PageGrid>
-            <SpacerRow />
+// === Prossime scadenze: mese corrente e prossimo ===
+  const today = new Date();
+  const startThis = new Date(today.getFullYear(), today.getMonth(), 1);
+  const startNext = new Date(today.getFullYear(), today.getMonth()+1, 1);
+  const startAfterNext = new Date(today.getFullYear(), today.getMonth()+2, 1);
 
-            <AccountsArea>
-              <AccountTiles
-                accounts={accountList}
-                onClickAccount={handleClickAccount}
-                onAdd={handleAddAccount}
-              />
-            </AccountsArea>
+  const fmtDay = (d)=> d.toLocaleDateString("it-IT", { day:"2-digit", month:"short" });
 
-            <WideRow>
-              <FavoritesBar
-                favorites={favorites}
-                suggestions={favUniverse}
-                onChange={setFavorites}
-                onSelect={(fav)=>{ setFavorites(prev=>prev); /* opzionale: filtra cliccando */ }}
-                onAdd={handleAddFavorite}
-              />
-            </WideRow>
+/** Se hai una tua sorgente "planned", usala qui; altrimenti demo fallback */
+const planned = []; // <-- sostituisci con i tuoi promemoria/pianificazioni, es. dal tuo store
 
+const upcomingAll = useMemo(()=>{
+  const base = (planned || []).map(p => ({
+    id: p.id || crypto.randomUUID(),
+    title: p.title || p.name || "Promemoria",
+    amount: Number(p.amount) || 0,
+    type: p.type || "Uscita",        // "Entrata" | "Uscita"
+    date: new Date(p.dueDate),
+  }));
 
-            <TwoCol>
-              <HeadL>
-                <BookmarkTitle $animate style={{cursor:"pointer"}}
-                  onClick={()=>recentRef.current?.scrollIntoView({behavior:"smooth", block:"start"})}>
-                  Transazioni recenti
-                </BookmarkTitle>
-                <Toolbar>
-                  <RoundIcon
-                    onClick={()=>rtControls.current?.toggleFilters?.()}
-                    title="Filtra"
-                    $active={rtControls.current?.hasActiveFilters?.()}
-                  >
-                    <Lucide.Filter />
-                  </RoundIcon>
-                  <RoundIcon
-                    onClick={()=>rtControls.current?.openNew?.()}
-                    title="Nuova transazione"
-                  >
-                    <Lucide.Plus />
-                  </RoundIcon>
-                </Toolbar>
-              </HeadL>
-              <HeadR>
-                <BookmarkTitle $animate style={{cursor:"pointer"}}
-                  onClick={()=>spendingRef.current?.scrollIntoView({behavior:"smooth", block:"start"})}>
-                  {formatAnalysisTitle(analysis, { categories, accounts, defaultTitle: "Analisi entrate/uscite" })}
-                </BookmarkTitle>
-              </HeadR>
-              <LeftCol>
+  // fallback demo se non hai ancora dati
+  if (!base.length) {
+    return [
+      { id:"u1", title:"Affitto",           amount: 650,   type:"Uscita", date: new Date(today.getFullYear(), today.getMonth(), 27) },
+      { id:"u2", title:"Stipendio",         amount: 1800,  type:"Entrata", date: new Date(today.getFullYear(), today.getMonth()+1, 1) },
+      { id:"u3", title:"Spotify",           amount: 9.99,  type:"Uscita", date: new Date(today.getFullYear(), today.getMonth()+1, 5) },
+    ];
+  }
+  return base;
+}, [planned]);
 
-                {/* Pannello budget */}
-                <Section>
-                  <BudgetsPanel
-                    transactions={withBalances(filteredTransactions || [], accounts || [])}
-                    budgets={budgets}
-                  />
-                </Section>
+const upcomingThisMonth = useMemo(
+  ()=> upcomingAll.filter(x => x.date >= startThis && x.date < startNext)
+                  .sort((a,b)=>a.date-b.date),
+  [upcomingAll]
+);
+const upcomingNextMonth = useMemo(
+  ()=> upcomingAll.filter(x => x.date >= startNext && x.date < startAfterNext)
+                  .sort((a,b)=>a.date-b.date),
+  [upcomingAll]
+);
 
-                {/* Transazioni recenti */}
-                <RecentPanel ref={recentRef}>
-                  <RecentTransactions
-                    controlsRef={rtControls}
-                    transactions={withBalances(filteredTransactions, accounts)}
-                    categories={categories}
-                    accounts={accountList}
-                    analysis={analysis}
-                    openExternalId={openTxId}
-                    onAnalyze={(q) => setAnalysis(q)}
-                    onEdit={(tx) => setEditingTx(tx)}
-                    onDelete={(tx) => {/* elimina */}}
-                    onFiltersChange={handleFiltersChange} // se lo usi per lo spending panel
-                    onCreate={handleCreateTx}
-                  />
-                </RecentPanel>
-              </LeftCol>
-              <RightCol>
-                <SpendingArea ref={spendingRef}>
-                  <CornerBulb $on={!!analysis}>
-                    <Lucide.Lightbulb />
-                  </CornerBulb>
-                  <SpendingPanel 
-                    transactions={spendingTx}
-                    categories={categories}
-                    analysis={analysis}
-                    onAnalyze={(q) => setAnalysis(q)}
-                    onClear={() => setAnalysis(null)}
-                  />
-                </SpendingArea>
-              </RightCol>
-            </TwoCol>
-          </PageGrid>
+const [notifOpen, setNotifOpen] = useState(false);
+const alertsCount = alerts?.length || 0;   // già usi `alerts` nello stato
 
-          {/* POPUPs */}
-          {selectedAccount && (
-            <AccountDetailsPopup
-              account={selectedAccount}
-              onClose={closePopups}
-              onSave={(updated) => {
-                // aggiorna la lista locale
-                setAccountList(prev => prev.map(a => a.id === updated.id ? updated : a));
-              }}
-            />
-          )}
+return (
+  <Page>
+    <Container>
+      {/* puoi personalizzare qui la larghezza del centro e l'allineamento verticale */}
+      <Board style={{ "--center-min":"860px", "--center-max":"1040px", "--top-align":"18px" }}>
 
-          {showNewPopup && (
-            <NewAccountPopup
-              onClose={closePopups}
-              onCreate={(newAccount) => {
-                // ✅ aggiunge subito la tile
-                const id = newAccount?.id ?? String(Date.now());
-                const color = newAccount?.color ?? "#6aa9ff";
-                const name = newAccount?.name ?? "Nuovo Conto";
-                const balance = Number.isFinite(newAccount?.balance) ? newAccount.balance : 0;
+        {/* SINISTRA: ANALISI */}
+        <LeftRail>
+          <RailPanel>
+            <RailTitle>
+              <h4>
+                <Lucide.Lightbulb />
+                {formatAnalysisTitle(analysis, { categories, accounts, defaultTitle: "Analisi entrate/uscite" })}
+              </h4>
+              {analysis && (
+                <RoundIcon title="Azzera analisi" onClick={() => setAnalysis(null)}>
+                  <Lucide.X />
+                </RoundIcon>
+              )}
+            </RailTitle>
 
-                setAccountList((prev) => [
-                  ...prev,
-                  { id, color, name, balance },
-                ]);
-
-                closePopups();
-              }}
-            />
-          )}
-
-          {editingTx && (
-            <TransactionEditPopup
-              tx={editingTx}
-              accounts={accountList}
+            <SpendingPanel
+              transactions={spendingTx}
               categories={categories}
-              onClose={() => setEditingTx(null)}
-              onSave={(updated) => {
-              // TODO se hai lo store globale, chiama l’update lì.
-                    // Esempio: sostituisci nel tuo array "transactions" se ce l’hai in stato.
-                    // setTransactions(prev => prev.map(t => t.id === updated.id ? updated : t));
-                setEditingTx(null);
-              }}
+              analysis={analysis}
+              onAnalyze={(q) => setAnalysis(q)}
+              onClear={() => setAnalysis(null)}
             />
-          )}
-        </Container>
-      </WithRightRail>
+          </RailPanel>
+        </LeftRail>
 
-        {/* Rail destra riducibile */}
-        <NotificationsRail
-          alerts={alerts}
-          onDismiss={(id)=>setAlerts(arr=>arr.filter(a=>a.id!==id))}
-          onClear={()=>setAlerts([])}
-        />
-    </Page>
-  );
+        {/* CENTRO: CONTI → BUDGET → PREFERITI → TRANSAZIONI */}
+        <CenterStack>
+          {/* 1) I TUOI CONTI */}
+          <StackCard as="div" id="center-accounts">
+            <BookmarkTitle $animate style={{ marginBottom: 8 }}>I tuoi conti</BookmarkTitle>
+            <AccountTiles
+              accounts={accountList}
+              onClickAccount={handleClickAccount}
+              onAdd={handleAddAccount}
+              /* se hai un prop per le colonne, puoi lasciarlo com’è */
+            />
+          </StackCard>
+
+          {/* 2) PREFERITI */}
+          <StackCard as="div" id="center-favorites">
+            <BookmarkTitle $animate style={{ marginBottom: 8 }}>Preferiti</BookmarkTitle>
+            <FavoritesBar
+              favorites={favorites}
+              suggestions={favSuggestions /* o favUniverse, quello che usi */}
+              onChange={setFavorites}
+              onSelect={(fav) => {
+                if (!fav) { setRtFilterFn(null); return; }
+                setRtFilterFn(() => (t) => {
+                  if (!t) return false;
+                  if (fav.type === "beneficiary") return String(t.beneficiary) === fav.label;
+                  if (fav.type === "category")    return String(t.categoryName) === fav.label || String(t.categoryId) === fav.id;
+                  if (fav.type === "subcategory") return String(t.subcategory) === fav.label;
+                  return true;
+                });
+              }}
+              hideHeader           // niente titolo interno (usiamo il BookmarkTitle sopra)
+              darkSuggestions      // se l’hai, per avere il flyout scuro
+            />
+          </StackCard>
+
+          {/* 3) CONTROLLO BUDGET */}
+          <StackCard as="div" id="center-budgets">
+            <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", gap:8, marginBottom:8}}>
+              <BookmarkTitle $animate>Controllo budget</BookmarkTitle>
+              <button
+                onClick={()=>setBudgetCollapsed(v=>!v)}
+                title={budgetCollapsed ? "Espandi" : "Comprimi"}
+                style={{display:"grid",placeItems:"center",width:30,height:30,borderRadius:10,
+                        border:"1px solid var(--separator)",background:"var(--cardHover)",color:"inherit"}}
+              >
+                {budgetCollapsed ? <ChevronDown size={16}/> : <ChevronUp size={16}/>}
+              </button>
+            </div>
+            <BudgetsPanel
+              transactions={withBalances(filteredTransactions || [], accounts || [])}
+              budgets={budgets}
+              hideHeader
+              collapsedExtern={budgetCollapsed}
+              onToggleExtern={()=>setBudgetCollapsed(v=>!v)}
+            />
+          </StackCard>
+
+          {/* 4) TRANSAZIONI RECENTI */}
+          <RecentPanel id="center-transactions">
+            <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", gap:8, marginBottom:8}}>
+              <BookmarkTitle $animate>Transazioni recenti</BookmarkTitle>
+              <span style={{display:"inline-flex", gap:8}}>
+                <RoundIcon
+                  onClick={() => rtControls.current?.toggleFilters?.()}
+                  title="Filtra"
+                  $active={rtControls.current?.hasActiveFilters?.()}
+                >
+                  <Lucide.Filter/>
+                </RoundIcon>
+                <RoundIcon
+                  onClick={() => rtControls.current?.openNew?.()}
+                  title="Nuova transazione"
+                >
+                  <Lucide.Plus/>
+                </RoundIcon>
+              </span>
+            </div>
+
+            <RecentTransactions
+              controlsRef={rtControls}
+              transactions={recentTx}
+              categories={categories}
+              accounts={accountList}
+              analysis={analysis}
+              openExternalId={openTxId}
+              onAnalyze={(q) => setAnalysis(q)}
+              onEdit={(tx) => setEditingTx(tx)}
+              onDelete={(tx) => {/* elimina */}}
+              onFiltersChange={handleFiltersChange}
+              onCreate={handleCreateTx}
+            />
+          </RecentPanel>
+        </CenterStack>
+
+        {/* DESTRA: PROSSIME SCADENZE */}
+        <RightRail>
+          <RightRailPanel>
+            <RailTitle>
+              <h4><Lucide.CalendarDays/> Attività pianificate</h4>
+              {/* i tuoi bottoni calendario/prev/next/oggi possono stare qui */}
+            </RailTitle>
+            <NextExpensesPanel />
+          </RightRailPanel>
+        </RightRail>
+
+      </Board>
+    </Container>
+
+    {/* campanella & rail notifiche come già avevi */}
+    <BellFab onClick={()=>setNotifOpen(v=>!v)} title="Notifiche">
+      <Lucide.Bell />
+      {alertsCount>0 && <span className="dot" />}
+    </BellFab>
+    <NotificationsRail
+      open={notifOpen}
+      onOpenChange={setNotifOpen}
+      alerts={alerts}
+      onDismiss={(id)=>setAlerts(arr=>arr.filter(a=>a.id!==id))}
+      onClear={()=>setAlerts([])}
+    />
+  </Page>
+);
 };
 
 export default Dashboard;

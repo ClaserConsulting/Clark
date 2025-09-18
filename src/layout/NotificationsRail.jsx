@@ -1,178 +1,195 @@
-// src/layout/NotificationsRail.jsx
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import * as Lucide from "lucide-react";
+import { createPortal } from "react-dom";
+import { useNavigate } from "react-router-dom";
 
-const RAIL_W = 300;
-const TOP = 64; // altezza header
-
-const Rail = styled.aside`
-  position: fixed; top: ${TOP}px; right: 0;
-  height: calc(100vh - ${TOP}px);
-  width: ${({$open}) => $open ? `${RAIL_W}px` : "0px"};
-  overflow: hidden;
-  background: ${({theme})=>theme.sidebarBg || theme.card};
-  border-left: 1px solid ${({theme})=>theme.separator};
-  box-shadow: ${({$open})=>$open ? "0 10px 24px rgba(0,0,0,.2)" : "none"};
+const RailWrap = styled.aside`
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 1000;
+  width: ${p => (p.$open ? "320px" : "0px")};
   transition: width .18s ease;
-  z-index: 2300;
-  display: grid; grid-template-rows: auto 1fr;
+  overflow: hidden;
+  border-left: ${p=>p.$open ? `1px solid ${p.theme.separator}` : "0"};
+  background: ${({theme})=>theme.card};      /* come sidebar */
+  color: ${({theme})=>theme.text};
+  box-shadow: ${p=>p.$open ? "0 0 0 1px rgba(0,0,0,0.05), -12px 0 32px rgba(0,0,0,.35)" : "none"};
 `;
 
-const FloatingBell = styled.button`
-  position: fixed; top: calc(${TOP}px + 10px); right: 10px;
-  width: 38px; height: 38px; border-radius: 999px;
-  background: ${({theme})=>theme.sidebarBg || theme.card};
+const RailInner = styled.div`
+  display: grid; grid-template-rows: auto 1fr; gap: 8px; height: 100%;
+`;
+
+const RailHead = styled.div`
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding: 12px;
+  border-bottom: 1px solid ${({theme})=>theme.separator};
+  h4{margin:0; display:inline-flex; gap:8px; align-items:center;}
+  .icons{ display:inline-flex; gap:8px; }
+`;
+
+const GhostIconBtn = styled.button`
+  display:grid; place-items:center;
+  width:32px; height:32px; border-radius:10px;
   border: 1px solid ${({theme})=>theme.separator};
-  color:#fff; display:grid; place-items:center; cursor:pointer;
-  z-index: 2299; box-shadow: 0 8px 18px rgba(0,0,0,.2);
-  .badge{
-    position:absolute; top:-6px; right:-6px; min-width:16px; height:16px; padding:0 4px;
-    font-size:.7rem; border-radius:999px; background:#ef4444; color:#fff; display:grid; place-items:center;
-  }
+  background: ${({theme})=>theme.cardHover};
+  color: inherit; cursor:pointer;
+  &:hover{ transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.25); }
 `;
 
-const Head = styled.div`
-  display:flex; align-items:center; justify-content:space-between;
-  padding:10px; border-bottom:1px solid ${({theme})=>theme.separator};
-  h4{margin:0; display:inline-flex; gap:8px; align-items:center; color:#fff;}
-  .tools{display:flex; gap:8px;}
-  .iconBtn{
-    width:32px;height:32px;border-radius:8px;border:1px solid ${({theme})=>theme.separator};
-    background: ${({theme})=>theme.card}; color:#fff; display:grid; place-items:center; cursor:pointer;
-  }
+const List = styled.div`
+  padding: 8px 8px 12px; overflow: auto; height: 100%;
+  display: flex; flex-direction: column; gap: 6px;   /* fitte */
 `;
 
-const List = styled.div`overflow:auto; padding:6px; display:grid; gap:6px;`;
 const Item = styled.button`
-  height: 44px; border-radius:10px; border:1px solid ${({theme})=>theme.separator};
-  background:${({theme})=>theme.cardHover}; color:inherit; text-align:left;
-  display:grid; grid-template-columns:20px 1fr auto; align-items:center; gap:8px; padding:0 10px;
-  cursor:pointer; &:hover{ background:${({theme})=>theme.card}; }
-  .icon svg{ width:16px; height:16px; }
-  .title{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .meta{ opacity:.7; font-size:.8rem; margin-left:8px; }
-  .x{ border:0; background:transparent; cursor:pointer; opacity:.8; }
+  display:grid; grid-template-columns: 24px 1fr auto; gap:10px; align-items:center;
+  text-align:left; width:100%;
+  background:${({theme})=>theme.card}; color:inherit;
+  border:1px solid ${({theme})=>theme.separator};
+  border-radius:12px; padding:8px 10px; cursor:pointer;
+  &:hover{ background:${({theme})=>theme.cardHover}; }
+  .title{ font-weight:600; }
+  .ts{ opacity:.65; font-size:.8rem; }
+  .kind{ opacity:.75; font-size:.8rem; }
 `;
 
+const RailTab = styled.button`
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  transform: translateX(100%);             /* sta appena fuori dallo schermo */
+  padding: 10px; border-radius: 10px 0 0 10px;
+  background: ${({theme})=>theme.card};
+  color:#fff;
+  border:1px solid ${({theme})=>theme.separator};
+  display: grid; place-items: center; cursor: pointer;
+  z-index: 2500;
+  .dot{
+    position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:999px; background:#fff;
+  }
+  svg{ color: #fff; }                      /* campanella bianca */
+`;
+
+/* ===== Modal dettaglio ===== */
 const Backdrop = styled.div`
-  position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:3000; display:grid; place-items:center;
+  position: fixed; inset: 0; z-index: 3000;
+  background: rgba(0,0,0,.5);             /* scuro + blur come altri popup */
+  backdrop-filter: blur(12px);
+  display: grid; place-items: center; padding: 5vh 12px;
 `;
 const Card = styled.div`
-  width:min(800px, 94vw); max-height:80vh; overflow:auto;
-  background:${({theme})=>theme.card}; color:${({theme})=>theme.text};
-  border:1px solid ${({theme})=>theme.separator}; border-radius:14px; padding:14px; box-shadow:0 20px 40px rgba(0,0,0,.4);
-  display:grid; gap:10px;
+  width: min(720px, 92vw); max-height: 84vh; overflow:auto;
+  background: ${({theme})=>theme.card}; color: ${({theme})=>theme.text};
+  border-radius: 14px; padding: 14px; box-shadow: 0 10px 24px rgba(0,0,0,.4);
+  display: grid; gap: 10px;
+`;
+const ModalHead = styled.div`
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  border-bottom: 1px solid ${({theme})=>theme.separator}; padding-bottom:8px;
+  h3{margin:0; display:inline-flex; gap:8px; align-items:center;}
+`;
+const ModalFoot = styled.div`
+  display:flex; justify-content:flex-end; gap:8px; margin-top:4px;
+`;
+const Btn = styled.button`
+  border:0; border-radius:10px; padding:8px 12px; cursor:pointer;
+  background:${({theme})=>theme.cardHover}; color:inherit;
 `;
 
-export default function NotificationsRail({ alerts=[], onDismiss, onClear }) {
+export default function NotificationsRail({
+  alerts = [],               // [{id, kind, title, text, ts}]
+  onDismiss,                 // (id)=>void
+  onClear,                   // ()=>void
+}) {
   const [open, setOpen] = useState(false);
-  const [detail, setDetail] = useState(null);
-  const railRef = useRef(null);
+  const [details, setDetails] = useState(null);
+  const navigate = useNavigate();
 
-  const items = useMemo(()=>{
-    const norm = (x)=> x?.ts ? new Date(x.ts).getTime() : 0;
-    return [...alerts].sort((a,b)=> norm(b) - norm(a)); // più recenti in alto
-  }, [alerts]);
-
-  // API globale UNA SOLA VOLTA (no loop)
-  useEffect(()=>{
-    const toggle = ()=> setOpen(o=>!o);
-    const openFn = ()=> setOpen(true);
-    window.toggleNotifications = toggle;
-    window.openNotifications = openFn;
-    return ()=>{
-      if (window.toggleNotifications === toggle) delete window.toggleNotifications;
-      if (window.openNotifications === openFn) delete window.openNotifications;
-    };
-  }, []);
-
-  // click-outside quando aperta
-  useEffect(()=>{
-    if (!open) return;
-    const onDown = (e)=> { if (!railRef.current?.contains(e.target)) setOpen(false); };
-    document.addEventListener("mousedown", onDown, true);
-    return ()=> document.removeEventListener("mousedown", onDown, true);
+  // sposta il contenuto principale quando il rail è aperto
+  useEffect(() => {
+    document.documentElement.style.setProperty("--right-rail-width", open ? "340px" : "0px");
+    return () => document.documentElement.style.setProperty("--right-rail-width", "0px");
   }, [open]);
 
-  // spingi il contenuto (variabile CSS)
-  useEffect(()=>{
-    document.documentElement.style.setProperty("--right-rail-width", open ? `${RAIL_W}px` : "0px");
-    return ()=> document.documentElement.style.setProperty("--right-rail-width", "0px");
-  }, [open]);
+  const unreadCount = alerts.length;
 
-  const iconFor = (k)=> k==="good" ? <Lucide.BadgeCheck color="#22c55e"/> :
-                          k==="warn" ? <Lucide.AlertTriangle color="#f59e0b"/> :
-                          k==="medal"? <Lucide.Medal color="#facc15"/>        :
-                                      <Lucide.AlertOctagon color="#ef4444"/>;
-
-  const count = alerts.length;
+  const sorted = useMemo(
+    () => [...alerts].sort((a,b)=>(b.ts||0)-(a.ts||0)),
+    [alerts]
+  );
 
   return (
     <>
-      {!open && (
-        <FloatingBell onClick={()=>setOpen(true)} title="Notifiche">
-          <Lucide.Bell color="#fff" />
-          {count>0 && <span className="badge">{count}</span>}
-        </FloatingBell>
-      )}
+      {/* Tab esterno sempre visibile */}
+      <RailTab onClick={()=>setOpen(v=>!v)} title={open ? "Chiudi notifiche" : "Apri notifiche"}>
+        <Lucide.Bell />
+        {!!alerts.length && <span className="badge">{alerts.length}</span>}
+      </RailTab>
 
-      <Rail $open={open} ref={railRef} aria-label="Notifiche">
-        {open && (
-          <>
-            <Head>
-              <h4><Lucide.Bell color="#fff"/> Notifiche</h4>
-              <div className="tools">
-                {alerts.length>0 && (
-                  <button className="iconBtn" title="Pulisci" onClick={onClear}>
-                    <Lucide.Eraser />
-                  </button>
-                )}
-              </div>
-            </Head>
-
-            <List>
-              {items.length===0 && <div style={{opacity:.7, padding:"8px 2px"}}>Nessun alert in sospeso.</div>}
-              {items.map(a=>{
-                const stamp = new Date(a.ts || Date.now()).toLocaleString("it-IT");
-                return (
-                  <Item key={a.id} onClick={()=>setDetail(a)} title={a.text}>
-                    <span className="icon">{iconFor(a.kind)}</span>
-                    <span className="title"><strong>{a.title}</strong><span className="meta">• {stamp}</span></span>
-                    <button className="x" title="Chiudi" onClick={(e)=>{e.stopPropagation(); onDismiss?.(a.id);}}>×</button>
-                  </Item>
-                );
-              })}
-            </List>
-          </>
-        )}
-      </Rail>
-
-      {detail && createPortal(
-        <Backdrop onClick={()=>setDetail(null)}>
-          <Card onClick={(e)=>e.stopPropagation()}>
-            <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", gap:8}}>
-              <h3 style={{margin:0, display:"inline-flex", gap:8, alignItems:"center"}}>
-                {iconFor(detail.kind)} {detail.title}
-              </h3>
-              <button onClick={()=>setDetail(null)} style={{border:0, background:"transparent", color:"inherit"}}>×</button>
+      <RailWrap $open={open} onClick={(e)=>e.stopPropagation()}>
+        <RailInner>
+          <RailHead>
+            <h4><Lucide.Bell /><span>Notifiche</span></h4>
+            <div className="icons">
+              <GhostIconBtn title="Pulisci tutte" onClick={onClear}>
+                <Lucide.Eraser size={16}/>
+              </GhostIconBtn>
             </div>
-            <div style={{opacity:.85}}>{detail.text || "—"}</div>
-            <div style={{fontSize:".9rem", opacity:.8}}>
-              Ricevuta: {new Date(detail.ts || Date.now()).toLocaleString("it-IT")}
-            </div>
+          </RailHead>
 
-            {detail.kind==="medal" && (
-              <div style={{display:"grid", gap:8}}>
-                <div style={{display:"flex", alignItems:"center", gap:8}}>
-                  <Lucide.Medal color="#facc15"/><strong>Medaglia sbloccata!</strong>
+          <List>
+            {sorted.map(a=>(
+              <Item key={a.id} onClick={()=>setDetails(a)} title="Apri dettaglio">
+                <span>
+                  {a.kind==="good"  ? <Lucide.BadgeCheck/> :
+                   a.kind==="warn"  ? <Lucide.AlertTriangle/> :
+                   a.kind==="bad"   ? <Lucide.XOctagon/> :
+                   a.kind==="medal" ? <Lucide.Trophy/> : <Lucide.Info/>}
+                </span>
+                <div style={{minWidth:0}}>
+                  <div className="title" style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.title}</div>
+                  <div style={{opacity:.85, overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.text}</div>
                 </div>
-                <div style={{opacity:.85}}>
-                  {detail.medalDesc || "Obiettivo raggiunto! XP accreditati e nuova sfida disponibile."}
+                <div style={{display:"grid", gap:2, justifyItems:"end"}}>
+                  <span className="ts">
+                    {new Date(a.ts||Date.now()).toLocaleString("it-IT",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})}
+                  </span>
+                  <span className="kind">{a.kind}</span>
                 </div>
-              </div>
+              </Item>
+            ))}
+            {sorted.length===0 && (
+              <div style={{opacity:.7, textAlign:"center", marginTop:12}}>Nessuna notifica</div>
             )}
+          </List>
+        </RailInner>
+      </RailWrap>
+
+      {/* MODALE DETTAGLIO */}
+      {details && createPortal(
+        <Backdrop onClick={()=>setDetails(null)}>
+          <Card onClick={(e)=>e.stopPropagation()}>
+            <ModalHead>
+              <h3><Lucide.Info/><span>Dettaglio notifica</span></h3>
+              <GhostIconBtn title="Chiudi" onClick={()=>setDetails(null)}><Lucide.X/></GhostIconBtn>
+            </ModalHead>
+
+            <div style={{display:"grid", gap:6}}>
+              <div style={{display:"flex", alignItems:"center", gap:8}}>
+                <strong>{details.title}</strong>
+                <span style={{opacity:.7,fontSize:".85rem"}}>
+                  {new Date(details.ts||Date.now()).toLocaleString("it-IT",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})}
+                </span>
+              </div>
+              <div style={{opacity:.9}}>{details.text}</div>
+              {details.medalDesc && <div style={{opacity:.85}}>🏅 {details.medalDesc}</div>}
+            </div>
+
+            <ModalFoot>
+              <Btn onClick={()=>{ onDismiss?.(details.id); setDetails(null); }}>Elimina</Btn>
+              <Btn onClick={()=>{ setDetails(null); navigate("/notifiche"); }}>Vedi tutte le notifiche</Btn>
+            </ModalFoot>
           </Card>
         </Backdrop>,
         document.body
